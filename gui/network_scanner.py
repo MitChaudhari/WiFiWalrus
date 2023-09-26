@@ -11,15 +11,15 @@ class NetworkScanner:
     def scan(self):
         # This function will call the airodump-ng, or any other tool you are using, and return the list of networks detected
         networks = []
-        
         try:
-            result = subprocess.check_output(['airodump-ng', 'wlan0'], timeout=10)  # Replace with actual command and arguments
-            networks = self._parse_result(result.decode('utf-8'))  # Decode bytes to string
+            result = subprocess.check_output(['airodump-ng', 'wlan0'], timeout=10) 
+            networks = self._parse_result(result.decode('utf-8'))
+        except subprocess.TimeoutExpired:
+            return {'error': 'Scanning process timed out'}
         except subprocess.CalledProcessError as e:
-            print(f'Error occurred: {e}')
+            return {'error': f'Error occurred: {e}'}
         except Exception as e:
-            print(f'An unexpected error occurred: {e}')
-        
+            return {'error': f'An unexpected error occurred: {e}'}
         # testing
         return [{'SSID': 'Network1', 'Security': 'WPA2', 'Score': '80', 'Recommendation': 'Good', 'Detail': 'Details1'},
             {'SSID': 'Network2', 'Security': 'WEP', 'Score': '30', 'Recommendation': 'Poor', 'Detail': 'Details2'}]
