@@ -1,48 +1,90 @@
-#Contains the logic for scanning and analyzing networks.
 import subprocess
 import re
-
+from scapy.sendrecv import sniff
+from scapy.layers.dot11 import Dot11
+from scapy.layers.dot11 import Dot11Elt, Dot11EltCountry, Dot11EltRates, Dot11EltVendorSpecific
+import hashlib
+import pywifi
+from pywifi import const
 
 class NetworkScanner:
     def __init__(self):
-        # You can initialize any variables, objects here that you will use for scanning
         pass
 
     def scan(self):
-        # This function will call the airodump-ng, or any other tool you are using, and return the list of networks detected
-        networks = []
-        
-        try:
-            result = subprocess.check_output(['airodump-ng', 'wlan0'], timeout=10)  # Replace with actual command and arguments
-            networks = self._parse_result(result.decode('utf-8'))  # Decode bytes to string
-        except subprocess.CalledProcessError as e:
-            print(f'Error occurred: {e}')
-        except Exception as e:
-            print(f'An unexpected error occurred: {e}')
-        
-        # testing
-        return [{'SSID': 'Network1', 'Security': 'WPA2', 'Score': '80', 'Recommendation': 'Good', 'Detail': 'Details1'},
-            {'SSID': 'Network2', 'Security': 'WEP', 'Score': '30', 'Recommendation': 'Poor', 'Detail': 'Details2'}]
-        # return networks
+        self.networks_data = []
+        input_file = "sample.cap"
+        sniff(offline=input_file, prn=self._collect_network_data)
+        return self.networks_data
 
-    def _parse_result(self, result):
-        # This function will parse the result of airodump-ng or any other tool and return a list of networks detected
-        networks = []
+    def _collect_network_data(self, frame):
+        if frame.haslayer(Dot11) and frame.type == 0 and frame.subtype == 8:
+            ssid = frame.info.decode('utf-8', errors='ignore')
+            bssid = frame.addr3
+            channel = int(ord(frame[Dot11Elt:3].info))
+            
+            if frame.haslayer(Dot11EltCountry):
+                country = frame[Dot11EltCountry].country_string.decode('utf-8', errors='ignore')
+            else:
+                country = "Unknown"
+            
+            security = self._determine_security(frame)  # using scanner_proto.py logic
+            score = self._calculate_score(security)  # new function to calculate score
+            recommendation = self._get_recommendation(score)  # new function to determine recommendation
+
+            network_data = {
+                'SSID': ssid,
+                'Security': security,
+                'Score': score,
+                'Recommendation': recommendation,
+                'Detail': f"BSSID: {bssid}, Channel: {channel}, Country: {country}"  
+            }
+
+            self.networks_data.append(network_data)
+
+    def _determine_security(self, frame):
+        # For the sake of the example, we're just using WPA2 and WPA. You should extend this for all security types.
+        if frame.haslayer(Dot11Elt) and frame.ID == 48:  
+            return "WPA2-PSK"
+        else:
+            return "Unknown"
+
+    def _calculate_score(self, security):
+        # Basic scoring mechanism based on security type
+        scores = {
+            "WPA2-PSK": 90,
+            "WPA2": 85,
+            "WPA-PSK": 80,
+            "WPA": 75,
+            "WEP": 50,
+            "Open": 20,
+            "Unknown": 0
+        }
+        return scores.get(security, 0)
+
+    def _get_recommendation(self, score):
+        # Providing recommendations based on score
+        if score > 80:
+            return "Excellent"
+        elif 60 < score <= 80:
+            return "Good"
+        elif 40 < score <= 60:
+            return "Average"
+        else:
+            return "Poor"
         
-        # Assuming result is a string with one network per line, and each line has several details separated by spaces
+    def _parse_result(self, result):
+        # This function is retained from your previous structure for potential use with airodump-ng.
+        networks = []
         lines = result.split('\n')
-        for line in lines[2:]:  # Skip header lines
-            # Example: Parse each line and extract network details
+        for line in lines[2:]:
             details = re.split(r'\s+', line.strip())
-            if len(details) > 4:  # Adjust as per actual number of details in each line
+            if len(details) > 4:
                 networks.append({
                     'SSID': details[0],
-                    'Security': details[3],  # Placeholder, replace with actual index
-                    'Score': details[4],  # Placeholder, replace with actual index
-                    'Recommendation': 'Safe',  # Placeholder, replace with actual logic
-                    'Detail': details[5],  # Placeholder, replace with actual index
+                    'Security': details[3],
+                    'Score': details[4],
+                    'Recommendation': 'Safe',
+                    'Detail': details[5],
                 })
-                
         return networks
-
-    # You can add more functions here to implement other functionalities like analyzing networks, checking security, etc.
