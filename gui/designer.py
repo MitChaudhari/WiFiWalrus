@@ -1,4 +1,5 @@
-#Contains the hand-coded design of the UI components.
+# designer.py
+
 from PyQt5.QtWidgets import QVBoxLayout, QPushButton, QLabel, QTableWidget, QWidget
 
 class Ui_MainWindow:
@@ -15,8 +16,14 @@ class Ui_MainWindow:
 
         # Table to display Networks
         self.tableWidget = QTableWidget(self.centralwidget)
-        self.tableWidget.setColumnCount(5)
-        self.tableWidget.setHorizontalHeaderLabels(['SSID', 'Security', 'Score', 'Recommendation', 'Detail'])
+        
+        # Set the number of columns you need; for example, 3 for SSID, BSSID, and Security
+        # Add more if you have other details to show
+        self.tableWidget.setColumnCount(3)  
+        
+        # Set the header labels based on the information you're showing
+        self.tableWidget.setHorizontalHeaderLabels(['SSID', 'BSSID', 'Security']) 
+        
         self.verticalLayout.addWidget(self.tableWidget)
 
         # Scan Button
@@ -29,3 +36,5 @@ class Ui_MainWindow:
 
         # Main Window Configuration
         MainWindow.setWindowTitle("Network Scanner")
+
+        # You might want to add resizing options or other property changes to better accommodate the new layout.

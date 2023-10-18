@@ -1,7 +1,7 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidgetItem
 from gui.designer import Ui_MainWindow
-from gui.network_scanner import NetworkScanner  
+from gui.network_scanner import NetworkScanner
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
@@ -28,13 +28,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def updateTable(self, networks):
         self.ui.tableWidget.setRowCount(len(networks))
         for i, network in enumerate(networks):
-                if isinstance(network, dict):
-                    self.ui.tableWidget.setItem(i, 0, QTableWidgetItem(network.get('SSID', '')))
-                    self.ui.tableWidget.setItem(i, 1, QTableWidgetItem(network.get('Security', '')))
-                    self.ui.tableWidget.setItem(i, 2, QTableWidgetItem(str(network.get('Score', ''))))
-                    self.ui.tableWidget.setItem(i, 3, QTableWidgetItem(network.get('Recommendation', '')))
-                    self.ui.tableWidget.setItem(i, 4, QTableWidgetItem(network.get('Detail', '')))
-                    
+            # Extracting information from the network dictionary
+            ssid = network.get('SSID', '')
+            bssid = network.get('BSSID', '')  # Include this if it's in your dictionary
+            security = ' / '.join(network.get('Security', []))  # Joining the list into a string
+
+            # Adding items to the table
+            self.ui.tableWidget.setItem(i, 0, QTableWidgetItem(ssid))
+            self.ui.tableWidget.setItem(i, 1, QTableWidgetItem(bssid))  # Adjust column index if different
+            self.ui.tableWidget.setItem(i, 2, QTableWidgetItem(security))  # Adjust column index if different
+            # Add more fields as necessary, adjusting the column index each time
+            
+            # If you have additional data to add to the table, continue the pattern above.
+
     def getNetworksFromBackend(self):
         # This method should interact with the backend to get the list of networks.
         # Placeholder for now.
