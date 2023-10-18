@@ -1,48 +1,34 @@
-#Contains the logic for scanning and analyzing networks.
-import subprocess
-import re
-
+import pywifi
+import time  # Needed for sleep
+from pywifi import const  # If needed for status definitions
 
 class NetworkScanner:
     def __init__(self):
-        # You can initialize any variables, objects here that you will use for scanning
-        pass
+        pass  # Or initialize anything you need here
 
     def scan(self):
-        # This function will call the airodump-ng, or any other tool you are using, and return the list of networks detected
-        networks = []
-        
-        try:
-            result = subprocess.check_output(['airodump-ng', 'wlan0'], timeout=10)  # Replace with actual command and arguments
-            networks = self._parse_result(result.decode('utf-8'))  # Decode bytes to string
-        except subprocess.CalledProcessError as e:
-            print(f'Error occurred: {e}')
-        except Exception as e:
-            print(f'An unexpected error occurred: {e}')
-        
-        # testing
-        return [{'SSID': 'Network1', 'Security': 'WPA2', 'Score': '80', 'Recommendation': 'Good', 'Detail': 'Details1'},
-            {'SSID': 'Network2', 'Security': 'WEP', 'Score': '30', 'Recommendation': 'Poor', 'Detail': 'Details2'}]
-        # return networks
+        wifi = pywifi.PyWiFi()
+        iface = wifi.interfaces()[0]  # You may want to select an interface based on certain criteria
 
-    def _parse_result(self, result):
-        # This function will parse the result of airodump-ng or any other tool and return a list of networks detected
-        networks = []
+        iface.scan()  # Triggers scanning the network
+        time.sleep(8)  # Scanning may take a while, this delay allows for that
+
+        scan_results = iface.scan_results()
         
-        # Assuming result is a string with one network per line, and each line has several details separated by spaces
-        lines = result.split('\n')
-        for line in lines[2:]:  # Skip header lines
-            # Example: Parse each line and extract network details
-            details = re.split(r'\s+', line.strip())
-            if len(details) > 4:  # Adjust as per actual number of details in each line
-                networks.append({
-                    'SSID': details[0],
-                    'Security': details[3],  # Placeholder, replace with actual index
-                    'Score': details[4],  # Placeholder, replace with actual index
-                    'Recommendation': 'Safe',  # Placeholder, replace with actual logic
-                    'Detail': details[5],  # Placeholder, replace with actual index
-                })
-                
+        networks = []
+        for network in scan_results:
+            ssid = network.ssid
+            bssid = network.bssid
+            # The 'akm' field contains security information, but it's a list of security protocols
+            # It might be not straightforward and require processing to make this information user-friendly
+            security = network.akm  
+
+            network_info = {
+                'SSID': ssid,
+                'BSSID': bssid,  # You can include this if it's needed in your table
+                'Security': security,  # This will be a list; you might need further processing
+                # Add other network details here
+            }
+            networks.append(network_info)
+
         return networks
-
-    # You can add more functions here to implement other functionalities like analyzing networks, checking security, etc.
