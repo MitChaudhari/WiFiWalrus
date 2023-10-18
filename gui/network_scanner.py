@@ -4,31 +4,19 @@ from pywifi import const  # If needed for status definitions
 
 class NetworkScanner:
     def __init__(self):
-        pass  # Or initialize anything you need here
+        self.wifi = pywifi.PyWiFi()
 
     def scan(self):
-        wifi = pywifi.PyWiFi()
-        iface = wifi.interfaces()[0]  # You may want to select an interface based on certain criteria
-
-        iface.scan()  # Triggers scanning the network
-        time.sleep(8)  # Scanning may take a while, this delay allows for that
-
-        scan_results = iface.scan_results()
-        
+        iface = self.wifi.interfaces()[0]
+        iface.scan()
+        results = iface.scan_results()
         networks = []
-        for network in scan_results:
-            ssid = network.ssid
-            bssid = network.bssid
-            # The 'akm' field contains security information, but it's a list of security protocols
-            # It might be not straightforward and require processing to make this information user-friendly
-            security = network.akm  
 
-            network_info = {
-                'SSID': ssid,
-                'BSSID': bssid,  # You can include this if it's needed in your table
-                'Security': security,  # This will be a list; you might need further processing
-                # Add other network details here
-            }
-            networks.append(network_info)
+        for network in results:
+            networks.append({
+                'SSID': network.ssid,
+                'BSSID': network.bssid,
+                'Security': 'WPA' if pywifi.const.AKM_TYPE_WPA in network.akm else 'Open'  # Simplified, you may want to expand this
+            })
 
         return networks
