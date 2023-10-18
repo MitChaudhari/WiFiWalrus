@@ -1,3 +1,5 @@
+# mainwindow.py
+
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidgetItem
 from gui.designer import Ui_MainWindow
@@ -14,37 +16,29 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         # Connect the Scan button to the scanNetworks method
         self.ui.scanButton.clicked.connect(self.scanNetworks)
-        
-    def scanNetworks(self):
+
+    def scanNetworks(self):  # This method should be inside the MainWindow class
         try:
             self.ui.statusLabel.setText("Status: Scanning...")
-            networks = self.scanner.scan()
-            print(networks)  # Debugging line to understand the structure of returned data
-            self.updateTable(networks)  # Update the table with the results received from network_scanner.py
-            self.ui.statusLabel.setText("Status: Idle")
+            networks = self.scanner.scan()  # This should retrieve the list of networks
+
+            print(networks)  # Debugging purpose
+
+            self.updateTable(networks)  # Update the table with the new data
         except Exception as e:
-            self.ui.statusLabel.setText(f"Error: {str(e)}")
-        
-    def updateTable(self, networks):
+            print(f"An error occurred: {e}")  # This line will help catch any errors
+            self.ui.statusLabel.setText("Status: An error occurred while scanning.")
+
+    def updateTable(self, networks):  # This method should also be inside the MainWindow class
         self.ui.tableWidget.setRowCount(len(networks))
+
         for i, network in enumerate(networks):
-            # Extracting information from the network dictionary
-            ssid = network.get('SSID', '')
-            bssid = network.get('BSSID', '')  # Include this if it's in your dictionary
-            security = ' / '.join(network.get('Security', []))  # Joining the list into a string
+            self.ui.tableWidget.setItem(i, 0, QTableWidgetItem(network['SSID']))
+            # Make sure your table has enough columns to set these items.
+            self.ui.tableWidget.setItem(i, 1, QTableWidgetItem(network['BSSID']))
+            self.ui.tableWidget.setItem(i, 2, QTableWidgetItem(network['Security']))
 
-            # Adding items to the table
-            self.ui.tableWidget.setItem(i, 0, QTableWidgetItem(ssid))
-            self.ui.tableWidget.setItem(i, 1, QTableWidgetItem(bssid))  # Adjust column index if different
-            self.ui.tableWidget.setItem(i, 2, QTableWidgetItem(security))  # Adjust column index if different
-            # Add more fields as necessary, adjusting the column index each time
-            
-            # If you have additional data to add to the table, continue the pattern above.
-
-    def getNetworksFromBackend(self):
-        # This method should interact with the backend to get the list of networks.
-        # Placeholder for now.
-        return []
+# The rest of your main function remains unchanged.
 
 def main():
     app = QApplication(sys.argv)
