@@ -42,8 +42,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.ui.tableWidget.setItem(i, 0, QTableWidgetItem(network['SSID']))
             self.ui.tableWidget.setItem(i, 1, QTableWidgetItem(network['BSSID']))
             self.ui.tableWidget.setItem(i, 2, QTableWidgetItem(network.get('Signal', 'N/A')))
-            self.ui.tableWidget.setItem(i, 3, QTableWidgetItem(network.get('Security', 'N/A')))
-            self.ui.tableWidget.setItem(i, 4, QTableWidgetItem(network.get('Authentication', 'N/A')))
+            self.ui.tableWidget.setItem(i, 3, QTableWidgetItem(network.get('Authentication', 'N/A')))
+            self.ui.tableWidget.setItem(i, 4, QTableWidgetItem(str(network.get('Score', 0))))
 
     def sendToDatabase(self, networks):
         conn = mysql.connector.connect(**db_config)
@@ -54,9 +54,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         for network in networks:
             ssid = network['SSID']
             bssid = network['BSSID']
-            security = network.get('Security', 'N/A')
+            security = network.get('Authentication', 'N/A')  # This should map to Authentication
             signal = network.get('Signal', 'N/A')
-            authentication = network.get('Authentication', 'N/A')
+            authentication = security  # Assuming Authentication maps to Security
             score = network.get('Score', 0)
             wifi_hash = self.calculate_hash(ssid, bssid)
 
