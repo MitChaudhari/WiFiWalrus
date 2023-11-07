@@ -17,12 +17,11 @@ class Ui_MainWindow:
         # Table to display Networks
         self.tableWidget = QTableWidget(self.centralwidget)
         
-        # Set the number of columns you need; for example, 3 for SSID, BSSID, and Security
-        # Add more if you have other details to show
-        self.tableWidget.setColumnCount(3)  
+        # Set the number of columns; for example, 5 for SSID, BSSID, Signal, Security, and Score
+        self.tableWidget.setColumnCount(5)  
         
         # Set the header labels based on the information you're showing
-        self.tableWidget.setHorizontalHeaderLabels(['SSID', 'BSSID', 'Security']) 
+        self.tableWidget.setHorizontalHeaderLabels(['SSID', 'BSSID', 'Signal', 'Security', 'Score']) 
         
         self.verticalLayout.addWidget(self.tableWidget)
 
