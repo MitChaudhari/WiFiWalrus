@@ -52,6 +52,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.ui.tableWidget.setItem(i, 4, QTableWidgetItem(str(network.get('Score', 0))))
 
     def sendToDatabase(self, networks):
+        conn = None
+        cursor = None
         try:
             conn = mysql.connector.connect(**db_config)
             cursor = conn.cursor()
