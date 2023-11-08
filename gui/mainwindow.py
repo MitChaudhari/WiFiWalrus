@@ -49,18 +49,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor()
 
-        insert_query = "INSERT INTO connections (SSID, BSSID, Security, Signal, Authentication, Score, SHA256_Hash) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+        insert_query = "INSERT INTO connections (SSID, BSSID, Authentication, Signal, Score, SHA256_Hash) VALUES (%s, %s, %s, %s, %s, %s)"
 
         for network in networks:
             ssid = network['SSID']
             bssid = network['BSSID']
-            security = network.get('Authentication', 'N/A')  # This should map to Authentication
+            authentication = network.get('Authentication', 'N/A')
             signal = network.get('Signal', 'N/A')
-            authentication = security  # Assuming Authentication maps to Security
             score = network.get('Score', 0)
             wifi_hash = self.calculate_hash(ssid, bssid)
 
-            data_to_insert = (ssid, bssid, security, signal, authentication, score, wifi_hash)
+            data_to_insert = (ssid, bssid, authentication, signal, score, wifi_hash)
             cursor.execute(insert_query, data_to_insert)
 
         conn.commit()

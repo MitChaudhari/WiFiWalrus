@@ -1,10 +1,6 @@
-import pywifi
-from pywifi import const, Profile
+import subprocess
+
 class NetworkScanner:
-    def __init__(self):
-        self.wifi = pywifi.PyWiFi()
-        self.iface = self.wifi.interfaces()[0]
-    
     def _rank_network(self, network):
         # Initial score
         score = 0
@@ -39,52 +35,54 @@ class NetworkScanner:
         return network
 
     def scan(self):
-        self.iface.scan()
-        scan_results = self.iface.scan_results()
+        # Run the 'netsh wlan show networks' command
+    # Try running the 'netsh wlan show networks' command and handle potential errors
+        try:
+            result = subprocess.run(['netsh', 'wlan', 'show', 'networks', 'mode=Bssid'], capture_output=True, text=True, check=True)
+            networks_raw = result.stdout
+        except subprocess.CalledProcessError as e:
+            print(f"Command failed: {e}")
+            return []
 
         networks = []
-        for network in scan_results:
-            ssid = network.ssid
-            bssid = network.bssid
-            signal_strength = network.signal
+        current_network = {}
 
-            # Convert signal strength to a percentage (this is an approximation)
-            # The actual conversion from dBm to percentage can vary
-            signal_percent = min(max(2 * (signal_strength + 100), 0), 100)
+        # Parse the command output
+        for line in networks_raw.split('\n'):
+            line = line.strip()  # Remove any leading/trailing whitespace
+            if line.startswith("SSID"):
+                # When we find a new SSID, save the previous one (if any)
+                if current_network:
+                    # Rank the network before appending
+                    self._rank_network(current_network)
+                    networks.append(current_network)
+                    current_network = {}
+                # Extract the SSID
+                ssid = line.split(':', 1)[1].strip()
+                current_network['SSID'] = ssid
+            elif line.startswith("BSSID"):
+                # Extract the BSSID (MAC address)
+                bssid = line.split(':', 1)[1].strip()
+                current_network['BSSID'] = bssid
+            elif line.startswith("Signal"):
+                # Extract the Signal strength
+                signal = line.split(':', 1)[1].strip()
+                current_network['Signal'] = signal
+            elif line.startswith("Authentication"):
+                # Extract the Authentication type
+                auth = line.split(':', 1)[1].strip()
+                current_network['Authentication'] = auth
 
-            # Determine security type
-            security = self._determine_security(network)
-
-            current_network = {
-                'SSID': ssid,
-                'BSSID': bssid,
-                'Signal': f'{signal_percent}%',
-                'Authentication': security,
-            }
-
+        # Don't forget to add the last network when done
+        if current_network:
             self._rank_network(current_network)
             networks.append(current_network)
 
+        # Sort networks based on the score
         networks.sort(key=lambda x: x['Score'], reverse=True)
         return networks
-
-    def _determine_security(self, network):
-        # This is a simplified way to determine the security type
-        # You may need to expand this method to handle different security types properly
-        if network.akm == []:
-            security = 'OPEN'
-        elif const.AKM_TYPE_WPA2PSK in network.akm:
-            security = 'WPA2'
-        elif const.AKM_TYPE_WPAPSK in network.akm:
-            security = 'WPA'
-        elif const.AKM_TYPE_WPA3PSK in network.akm:
-            security = 'WPA3'
-        else:
-            security = 'OTHER'
-
-        return security
-
-# Example usage:
+    
+# Example of how we might use this class:
 if __name__ == "__main__":
     scanner = NetworkScanner()
     ranked_networks = scanner.scan()
