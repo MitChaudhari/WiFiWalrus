@@ -26,15 +26,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         return hashlib.sha256(data).hexdigest()
 
     def scanNetworks(self):
+        # Disable the button to prevent multiple scans at the same time
+        self.ui.scanButton.setDisabled(True)
+        self.ui.statusLabel.setText("Status: Scanning...")
         try:
-            self.ui.statusLabel.setText("Status: Scanning...")
             networks = self.scanner.scan()
-            print(networks)
             self.updateTable(networks)
             self.sendToDatabase(networks)
+            self.ui.statusLabel.setText("Status: Scan complete.")
         except Exception as e:
             print(f"An error occurred: {e}")
             self.ui.statusLabel.setText("Status: An error occurred while scanning.")
+        finally:
+            # Re-enable the scan button after the scan is complete or if an error occurs
+            self.ui.scanButton.setDisabled(False)
+
 
     def updateTable(self, networks):
         self.ui.tableWidget.setRowCount(len(networks))
@@ -42,31 +48,42 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.ui.tableWidget.setItem(i, 0, QTableWidgetItem(network['SSID']))
             self.ui.tableWidget.setItem(i, 1, QTableWidgetItem(network['BSSID']))
             self.ui.tableWidget.setItem(i, 2, QTableWidgetItem(network.get('Signal', 'N/A')))
-            self.ui.tableWidget.setItem(i, 3, QTableWidgetItem(network.get('Security', 'N/A')))
-            self.ui.tableWidget.setItem(i, 4, QTableWidgetItem(network.get('Authentication', 'N/A')))
+            self.ui.tableWidget.setItem(i, 3, QTableWidgetItem(network.get('Authentication', 'N/A')))
+            self.ui.tableWidget.setItem(i, 4, QTableWidgetItem(str(network.get('Score', 0))))
 
     def sendToDatabase(self, networks):
-        conn = mysql.connector.connect(**db_config)
-        cursor = conn.cursor()
+        conn = None
+        cursor = None
+        try:
+            conn = mysql.connector.connect(**db_config)
+            cursor = conn.cursor()
 
-        insert_query = "INSERT INTO connections (SSID, BSSID, Security, Signal, Authentication, Score, SHA256_Hash) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+            insert_query = "INSERT INTO connections (SSID, BSSID, Authentication, Signal, Score, SHA256_Hash) VALUES (%s, %s, %s, %s, %s, %s)"
 
-        for network in networks:
-            ssid = network['SSID']
-            bssid = network['BSSID']
-            security = network.get('Security', 'N/A')
-            signal = network.get('Signal', 'N/A')
-            authentication = network.get('Authentication', 'N/A')
-            score = network.get('Score', 0)
-            wifi_hash = self.calculate_hash(ssid, bssid)
+            for network in networks:
+                ssid = network['SSID']
+                bssid = network['BSSID']
+                authentication = network.get('Authentication', 'N/A')
+                signal = network.get('Signal', 'N/A')
+                score = network.get('Score', 0)
+                wifi_hash = self.calculate_hash(ssid, bssid)
 
-            data_to_insert = (ssid, bssid, security, signal, authentication, score, wifi_hash)
-            cursor.execute(insert_query, data_to_insert)
+                data_to_insert = (ssid, bssid, authentication, signal, score, wifi_hash)
+                cursor.execute(insert_query, data_to_insert)
 
-        conn.commit()
-        cursor.close()
-        conn.close()
-
+            conn.commit()
+        except mysql.connector.Error as e:
+            print(f"Database error: {e}")
+            self.ui.statusLabel.setText("Status: Database error occurred.")
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            self.ui.statusLabel.setText("Status: An unexpected error occurred.")
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+            
 def main():
     app = QApplication(sys.argv)
     window = MainWindow()
