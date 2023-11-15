@@ -8,6 +8,11 @@ from PyQt5.QtWidgets import QProgressDialog
 from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QProgressDialog, QLabel
 from PyQt5.QtGui import QMovie
+from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QLabel, QProgressDialog
+from PyQt5.QtCore import QThread, pyqtSignal, QTimer
+from PyQt5.QtGui import QMovie
+from PyQt5.QtCore import QThread, pyqtSignal, QTimer, Qt  # Make sure Qt is included here
+
 
 class ScannerWorker(QThread):
     finished = pyqtSignal(list)  # Signal to emit the scanned networks
@@ -33,7 +38,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.progressDialog.setWindowTitle("Please Wait")
         self.progressDialog.setCancelButton(None)  # Disable cancel button
         self.progressDialog.setModal(True)
-        self.progressDialog.setValue(0)
+        self.progressDialog.setAutoClose(False)
         
         # Initialize a QTimer
         self.timer = QTimer(self)
@@ -47,37 +52,30 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.scanner_thread.start()  # Start the scanner thread
 
     def showProgressDialog(self):
-        # Apply custom styles to the progress dialog
-        self.progressDialog.setStyleSheet("""
-            QDialog {
-                background-color: #2D2D30;
-                color: white;
-            }
-            QProgressBar {
-                border: 2px solid grey;
-                border-radius: 5px;
-                text-align: center;
-            }
-            QProgressBar::chunk {
-                background-color: #05B8CC;
-                width: 10px; /* size of the chunks */
-            }
-        """)
+        
+        self.elapsedTime = 0
+        self.timer.start(1000)  # Update every second
 
-        # Setup animated label for the progress dialog
+        # Assuming your structure is Front-End/gui/mainwindow.py and Front-End/assets/gif1.gif
+        gifPath = "../assets/gif1.gif"  # Correct path to your GIF
+        movie = QMovie(gifPath)
+
         self.loadingLabel = QLabel(self.progressDialog)
-        movie = QMovie(".../assets/gif1.gif")  # Update with the correct path
+        self.loadingLabel.setAlignment(Qt.AlignCenter)  # Center the label
         self.loadingLabel.setMovie(movie)
         movie.start()
 
-        self.elapsedTime = 0
-        self.timer.start(1000)  # Update every second
+        # Adjust the size of the QLabel to match your GIF's size (modify as needed)
+        self.loadingLabel.setFixedSize(200, 200)  # Update with the actual size of your GIF
+
+        # Set the layout of the progress dialog to include the loading label
+        self.progressDialog.setLabel(self.loadingLabel)
         self.progressDialog.show()
 
     def updateProgressDialog(self):
         phrases = ["Scanning the airwaves...", "Almost there...", "Hang tight, we're scanning...", "Just a moment..."]
         current_phrase = phrases[self.elapsedTime % len(phrases)]
-        self.progressDialog.setLabelText(f"{current_phrase} {self.elapsedTime} seconds elapsed")
+        self.progressDialog.setLabelText(f"{current_phrase} ({self.elapsedTime} seconds elapsed)")
         self.elapsedTime += 1
     
     def onScanComplete(self, networks):
