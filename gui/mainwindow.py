@@ -27,10 +27,14 @@ class LoadingDialog(QDialog):
         self.gifLabel.setMovie(movie)
         movie.start()
 
+        # Adjust the size of the QLabel to fit the GIF
+        # Update these values according to the size of your GIF
+        self.gifLabel.setFixedSize(400, 400)  # For example, 400x400 pixels
+
         # Create a label for the text
         self.textLabel = QLabel("Scanning the airwaves...")
         self.textLabel.setAlignment(Qt.AlignCenter)
-        self.textLabel.setStyleSheet("color: white;")
+        self.textLabel.setStyleSheet("color: white; font: 16pt;")  # You can also adjust the font size here
 
         # Set the dialog layout
         layout = QVBoxLayout()
@@ -42,8 +46,9 @@ class LoadingDialog(QDialog):
         self.setStyleSheet("QDialog { background-color: black; }")
 
         # Adjust the size of the QDialog to fit the content
-        self.adjustSize()
-
+        self.adjustSize()  # This will adjust to fit the size of the contents
+        # Alternatively, you can set a fixed size for the dialog itself
+        # self.setFixedSize(500, 500)  # For example, 500x500 pixels
     def update_text(self, text):
         self.textLabel.setText(text)
 
