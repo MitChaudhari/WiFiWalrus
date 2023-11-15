@@ -27,14 +27,20 @@ class NetworkScanner:
 
         network['Score'] = round(total_score, 2)  # Round the score for better readability
         return network
+    
     def scan(self):
         # Run the 'netsh wlan show networks' command
-    # Try running the 'netsh wlan show networks' command and handle potential errors
+        # Try running the 'netsh wlan show networks' command and handle potential errors
         try:
-            result = subprocess.run(['netsh', 'wlan', 'show', 'networks', 'mode=Bssid'], capture_output=True, text=True, check=True)
-            networks_raw = result.stdout
-        except subprocess.CalledProcessError as e:
-            print(f"Command failed: {e}")
+            process = subprocess.Popen(['netsh', 'wlan', 'show', 'networks', 'mode=Bssid'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            networks_raw, error = process.communicate(timeout=30)  # 30-second timeout
+
+            if process.returncode != 0:
+                print(f"Command failed with error: {error}")
+                return []
+            
+        except subprocess.TimeoutExpired:
+            print("Scanning process timed out.")
             return []
 
         networks = []
