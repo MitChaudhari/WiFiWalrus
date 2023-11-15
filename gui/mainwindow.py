@@ -57,6 +57,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.updateTable(networks)
         db_status = self.db_manager.send_to_database(networks)
         self.ui.statusLabel.setText(f"Status: {db_status}")
+        self.progressDialog.accept()  # Explicitly accept/close the dialog
+        self.timer.stop()  # Stop the timer
         self.ui.scanButton.setDisabled(False)  # Re-enable the scan button
 
     def updateTable(self, networks):
