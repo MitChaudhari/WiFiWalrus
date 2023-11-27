@@ -1,31 +1,24 @@
-import platform
-import random
-import subprocess
+import platform, random , subprocess, math
 
 class NetworkScanner:
     def _rank_network(self, network):
-        # Max points for each component
-        max_signal_points = 30
-        max_ssid_points = 20
-        signal_divisor = 100.0  # Pre-computed value for signal strength calculation
-
         # Security Scoring
-        security_scores = {'WPA3': 50, 'WPA2': 35, 'WPA': 25, 'WEP': 15, 'OPEN': 5}
+        security_scores = {'WPA3': 50, 'WPA2': 40, 'WPA': 30, 'WEP': 10, 'OPEN': 0}
         security = network.get('Authentication', '').upper()
         security_score = security_scores.get(security, 0)
 
         # Signal Strength Scoring
         signal_strength = int(network.get('Signal', '0%').rstrip('%'))
-        signal_score = min(signal_strength / signal_divisor * max_signal_points, max_signal_points)
+        signal_score = 40 * (math.log10(signal_strength) / 2)
 
-        # SSID Analysis Scoring
+        # SSID Scoring
         common_ssids = ['default', 'linksys', 'netgear', 'xfinity']
-        ssid_score = max_ssid_points - 10 if any(common_name in network['SSID'].lower() for common_name in common_ssids) else max_ssid_points
+        ssid_score = 10 if any(common_name in network['SSID'].lower() for common_name in common_ssids) else 20
 
-        # Total Score
-        total_score = min(security_score + signal_score + ssid_score, 100)  # Ensure score doesn't exceed 100
+        # Total Score Calculation
+        total_score = min(security_score + signal_score + ssid_score, 100)
 
-        network['Score'] = round(total_score, 2)  # Round the score for better readability
+        network['Score'] = round(total_score, 2)
         return network
 
     def _parse_network_data(self, raw_data):
