@@ -155,7 +155,7 @@ class AboutUs(QWidget):
 
 
         # Adjust this stretch to move content upward
-        content_layout.addStretch(0.5)
+        content_layout.addStretch(1)
         main_layout.addLayout(content_layout)
 
         self.setLayout(main_layout)

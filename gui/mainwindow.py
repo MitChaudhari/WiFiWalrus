@@ -146,7 +146,7 @@ class MainWindow(QMainWindow):
 
         # Subtle animation in the most inner circle
         inner_color = QColor('#FF4500')  # Dark Orange
-        inner_color.setAlpha(150 + 105 * math.sin(self._animation_step / 50.0))
+        inner_color.setAlpha(int(150 + 105 * math.sin(self._animation_step / 50)))
         gradient.setColorAt(0.1, inner_color)  # Adjust the position for size of the animated circle
 
         # The outermost color should be black
