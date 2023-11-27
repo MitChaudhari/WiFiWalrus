@@ -1,11 +1,13 @@
+import platform
+import random
 import subprocess
 
 class NetworkScanner:
     def _rank_network(self, network):
         # Max points for each component
-        max_security_points = 50
         max_signal_points = 30
         max_ssid_points = 20
+        signal_divisor = 100.0  # Pre-computed value for signal strength calculation
 
         # Security Scoring
         security_scores = {'WPA3': 50, 'WPA2': 35, 'WPA': 25, 'WEP': 15, 'OPEN': 5}
@@ -14,69 +16,78 @@ class NetworkScanner:
 
         # Signal Strength Scoring
         signal_strength = int(network.get('Signal', '0%').rstrip('%'))
-        signal_score = min(signal_strength / 100 * max_signal_points, max_signal_points)
+        signal_score = min(signal_strength / signal_divisor * max_signal_points, max_signal_points)
 
         # SSID Analysis Scoring
-        ssid_score = max_ssid_points
-        if any(common_name in network['SSID'].lower() for common_name in ['default', 'linksys', 'netgear', 'xfinity']):
-            ssid_score -= 10  # Deduct points for common SSID names
+        common_ssids = ['default', 'linksys', 'netgear', 'xfinity']
+        ssid_score = max_ssid_points - 10 if any(common_name in network['SSID'].lower() for common_name in common_ssids) else max_ssid_points
 
         # Total Score
-        total_score = security_score + signal_score + ssid_score
-        total_score = min(total_score, 100)  # Ensure score doesn't exceed 100
+        total_score = min(security_score + signal_score + ssid_score, 100)  # Ensure score doesn't exceed 100
 
         network['Score'] = round(total_score, 2)  # Round the score for better readability
         return network
-    
-    def scan(self):
-        # Run the 'netsh wlan show networks' command
-        # Try running the 'netsh wlan show networks' command and handle potential errors
-        try:
-            process = subprocess.Popen(['netsh', 'wlan', 'show', 'networks', 'mode=Bssid'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-            networks_raw, error = process.communicate(timeout=30)  # 30-second timeout
 
-            if process.returncode != 0:
-                print(f"Command failed with error: {error}")
-                return []
-            
-        except subprocess.TimeoutExpired:
-            print("Scanning process timed out.")
-            return []
-
+    def _parse_network_data(self, raw_data):
         networks = []
         current_network = {}
-
-        # Parse the command output
-        for line in networks_raw.split('\n'):
-            line = line.strip()  # Remove any leading/trailing whitespace
+        for line in raw_data.split('\n'):
+            line = line.strip()
             if line.startswith("SSID"):
-                # When we find a new SSID, save the previous one (if any)
                 if current_network:
-                    # Rank the network before appending
                     self._rank_network(current_network)
                     networks.append(current_network)
                     current_network = {}
-                # Extract the SSID
                 ssid = line.split(':', 1)[1].strip()
                 current_network['SSID'] = ssid
             elif line.startswith("BSSID"):
-                # Extract the BSSID (MAC address)
                 bssid = line.split(':', 1)[1].strip()
                 current_network['BSSID'] = bssid
             elif line.startswith("Signal"):
-                # Extract the Signal strength
                 signal = line.split(':', 1)[1].strip()
                 current_network['Signal'] = signal
             elif line.startswith("Authentication"):
-                # Extract the Authentication type
                 auth = line.split(':', 1)[1].strip()
                 current_network['Authentication'] = auth
 
-        # Don't forget to add the last network when done
         if current_network:
             self._rank_network(current_network)
             networks.append(current_network)
-
-        # Sort networks based on the score
-        networks.sort(key=lambda x: x['Score'], reverse=True)
         return networks
+    
+    
+    def _get_fake_network_data(self):
+        fake_networks = []
+        for _ in range(10):
+            signal = f"{random.randint(20, 100)}%"
+            auth_options = ['WPA3', 'WPA2', 'WPA', 'WEP', 'OPEN']
+            fake_networks.append({
+                'SSID': f"Network_{random.randint(1, 100)}",
+                'BSSID': ':'.join('%02x' % random.randint(0, 255) for _ in range(6)),
+                'Signal': signal,
+                'Authentication': random.choice(auth_options)
+            })
+        return '\n'.join([f"SSID: {net['SSID']}\nBSSID: {net['BSSID']}\nSignal: {net['Signal']}\nAuthentication: {net['Authentication']}" for net in fake_networks])
+
+    def scan(self):
+        networks_raw = ''
+        if platform.system() == 'Windows':
+            try:
+                process = subprocess.Popen(['netsh', 'wlan', 'show', 'networks', 'mode=Bssid'],
+                                           stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                networks_raw, error = process.communicate(timeout=30)
+                if process.returncode != 0:
+                    print(f"Command failed with error: {error}")
+                    return []
+            except subprocess.TimeoutExpired:
+                print("Scanning process timed out.")
+                return []
+        else:
+            networks_raw = self._get_fake_network_data()
+
+        parsed_networks = self._parse_network_data(networks_raw)
+        ranked_networks = [self._rank_network(network) for network in parsed_networks]
+        ranked_networks.sort(key=lambda x: x['Score'], reverse=True)
+        # Return only the top 10 networks
+        top_networks = ranked_networks[:10]
+        return top_networks

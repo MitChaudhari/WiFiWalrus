@@ -1,52 +1,54 @@
-import mysql.connector
-from hashlib import sha256
+import requests
+import hashlib
+from requests.exceptions import RequestException
 
-# Database connection parameters
-db_config = {
-    'user': 'root',
-    'password': 'ipro497db',
-    'host': 'ec2-3-12-150-224.us-east-2.compute.amazonaws.com',
-    'database': 'ipro1'
-}
 class DatabaseManager:
-    def __init__(self):
-        self.db_config = db_config
+    API_ENDPOINT = "http://ec2-3-140-116-49.us-east-2.compute.amazonaws.com:8000/frontendAPI/"
 
     @staticmethod
     def calculate_hash(ssid, bssid):
         data = f"{ssid}{bssid}".encode("utf-8")
-        return sha256(data).hexdigest()
+        return hashlib.sha256(data).hexdigest()
 
-    def send_to_database(self, networks):
-        conn = None
-        cursor = None
-        try:
-            conn = mysql.connector.connect(**self.db_config)
-            cursor = conn.cursor()
+    def send_to_api(self, networks):
+        for network in networks:
+            ssid = network['SSID']
+            bssid = network['BSSID']
+            authentication = network.get('Authentication', 'N/A')
+            signal = network.get('Signal', 'N/A')
+            score = round(network.get('Score', 0))  # Round score to nearest integer
+            network_hash = self.calculate_hash(ssid, bssid)
 
-            insert_query = "INSERT INTO connections (SSID, BSSID, Authentication, Signal, Score, SHA256_Hash) VALUES (%s, %s, %s, %s, %s, %s)"
+            # Prepare data to send to API
+            network_data = {
+                "ssid": ssid,
+                "bssid": bssid,
+                "authType": authentication,
+                "signalStrength": signal,
+                "connectionScore": score,
+                "networkHash": network_hash
+            }
+            try:
+                response = requests.post(
+                    self.API_ENDPOINT,
+                    json=network_data,
+                    headers={"Content-Type": "application/json"}
+                )
 
-            for network in networks:
-                ssid = network['SSID']
-                bssid = network['BSSID']
-                authentication = network.get('Authentication', 'N/A')
-                signal = network.get('Signal', 'N/A')
-                score = round(network.get('Score', 0))  # Round score to nearest integer
-                wifi_hash = DatabaseManager.calculate_hash(ssid, bssid)
+                if response.status_code == 201:
+                    print(f"Successfully sent data for network {ssid}")
+                else:
+                    print(f"Error sending data for network {ssid}: {response.status_code}")
+                    print(response.text)
 
-                data_to_insert = (ssid, bssid, authentication, signal, score, wifi_hash)
-                cursor.execute(insert_query, data_to_insert)
+            except RequestException as e:
+                print(f"Failed to send data for network {ssid}. Error: {e}")
 
-            conn.commit()
-        except mysql.connector.Error as e:
-            print(f"Database error: {e}")
-            return "Database error occurred."
-        except Exception as e:
-            print(f"An error occurred: {e}")
-            return "An unexpected error occurred."
-        finally:
-            if cursor:
-                cursor.close()
-            if conn:
-                conn.close()
-        return "Data sent to database successfully."
+# Example usage for testing purposes
+if __name__ == "__main__":
+    db_manager = DatabaseManager()
+    sample_networks = [
+        {'SSID': 'TestNetwork1', 'BSSID': '00:11:22:33:44:55', 'Authentication': 'WPA2', 'Signal': '70%', 'Score': 80},
+        {'SSID': 'TestNetwork2', 'BSSID': '11:22:33:44:55:66', 'Authentication': 'WPA', 'Signal': '50%', 'Score': 70},
+    ]
+    db_manager.send_to_api(sample_networks)
