@@ -125,12 +125,12 @@ class AboutUs(QWidget):
         about_content.setWordWrap(True)
         about_content.setAlignment(Qt.AlignLeft | Qt.AlignTop)  # Center-align the text within the label
 
-        # Adjust size policy and maximum width to make the label responsive
+        # Can Adjust the size policy and maximum width to make the label responsive
         about_content.setSizePolicy(QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred))
-        about_content.setMaximumWidth(700)  # Adjust the maximum width as needed
+        about_content.setMaximumWidth(700)  # Adjusts the maximum width
 
         about_content_layout.addWidget(about_content)
-        about_content_layout.addStretch()  # Add stretch to center the label
+        about_content_layout.addStretch()  # Stretch to center the label
 
         content_layout.addLayout(about_content_layout)
         
@@ -152,7 +152,7 @@ class AboutUs(QWidget):
             }
         """)
 
-        # Adjust size policy and maximum width to make the button responsive
+        # Can Adjust the size policy and maximum width to make the button responsive
         lets_get_started_button.setSizePolicy(QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred))
         lets_get_started_button.setMaximumWidth(300)  # Adjust the maximum width as needed
 

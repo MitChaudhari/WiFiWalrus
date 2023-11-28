@@ -12,8 +12,8 @@ class DatabaseManager:
 
     def send_to_api(self, networks):
         for network in networks:
-            ssid = network['SSID']
-            bssid = network['BSSID']
+            ssid = network.get('SSID', 'N/A')
+            bssid = network.get('BSSID', 'N/A')
             authentication = network.get('Authentication', 'N/A')
             signal = network.get('Signal', 'N/A')
             score = round(network.get('Score', 0))  # Round score to nearest integer

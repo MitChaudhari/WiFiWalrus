@@ -27,12 +27,13 @@ class RecommendedNetworkDialog(QDialog):
         info_label = QLabel(f"""
             <p>We've scanned the available Wi-Fi networks and based on our analysis,
             the following network is recommended for you:</p>
-            <p><b>Network Name (SSID):</b> {network['SSID']}<br>
-            <b>Security Type:</b> {network['Authentication']}<br>
-            <b>Signal Strength:</b> {network['Signal']}</p>
+            <p><b>Network Name (SSID):</b> {network.get('SSID', 'N/A')}<br>
+            <b>Security Type:</b> {network.get('Authentication', 'N/A')}<br>
+            <b>Signal Strength:</b> {network.get('Signal', 'N/A')}</p>
             <p>This network offers the best balance of security and signal strength,
             ensuring a more reliable and secure connection.</p>
         """)
+        
         info_label.setStyleSheet("""
             QLabel {
                 color: #FFFFFF; /* White color for better visibility on gradient */
@@ -197,13 +198,12 @@ class MainWindow(QMainWindow):
 
         # Now, populate the table with the data
         for i, network in enumerate(networks):
-            self.ui.tableWidget.setItem(i, 0, QTableWidgetItem(network['SSID']))
-            self.ui.tableWidget.setItem(i, 1, QTableWidgetItem(network['BSSID']))
+            self.ui.tableWidget.setItem(i, 0, QTableWidgetItem(network.get('SSID', 'N/A')))
+            self.ui.tableWidget.setItem(i, 1, QTableWidgetItem(network.get('BSSID', 'N/A')))
             self.ui.tableWidget.setItem(i, 2, QTableWidgetItem(network.get('Signal', 'N/A')))
             self.ui.tableWidget.setItem(i, 3, QTableWidgetItem(network.get('Authentication', 'N/A')))
             self.ui.tableWidget.setItem(i, 4, QTableWidgetItem(f"{network.get('Score', 0):.2f}"))
-
-        # You may need to refresh or update the layout if the table size changes significantly
+            
         self.ui.centralwidget.layout().update()
         
     def showRecommendation(self, networks):

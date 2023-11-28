@@ -125,12 +125,14 @@ class Ui_MainWindow:
                 padding: 15px 30px;  /* Increased padding for a larger button */
                 margin-top: 25px;
             }
+            QPushButton:hover {
+                background-color: #7159E8;  /* Lighter purple shade for hover effect */
+            }
             QPushButton:disabled {
                 background-color: #7F6AC7;  /* A lighter purple color to indicate scanning */
                 color: #E0E0E0;  /* A light grey color for text */
             }
-        """
-        
+        """ 
         # Scan Button
         self.scanButton = QPushButton("Scan", self.centralwidget)
         self.scanButton.setFont(QFont("Helvetica", 18))
