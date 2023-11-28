@@ -25,3 +25,8 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
+    
+    # pip install pyinstaller
+# pyinstaller --noconfirm --onedir --windowed --icon "/Users/mitan/Documents/GitHub/front-end/WiFiWalrus.iconset/icon.icns" --add-data "/Users/mitan/Documents/GitHub/front-end/assets/wifiBar.gif:assets" --add-data "/Users/mitan/Documents/GitHub/front-end/assets/logo.png:assets" --name "WiFiWalrus" main.py
+
