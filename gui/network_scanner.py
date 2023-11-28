@@ -3,13 +3,21 @@ import platform, random , subprocess, math
 class NetworkScanner:
     def _rank_network(self, network):
         # Security Scoring
-        security_scores = {'WPA3': 50, 'WPA2': 40, 'WPA': 30, 'WEP': 10, 'OPEN': 0}
+        security_scores = {
+            'WPA3': 50, 
+            'WPA2-Enterprise': 45, 
+            'WPA2-Personal': 40, 
+            'WPA': 30, 
+            'WEP': 10, 
+            'OPEN': 0
+        }
         security = network.get('Authentication', '').upper()
         security_score = security_scores.get(security, 0)
 
-        # Signal Strength Scoring
+        # Signal Strength Scoring (Logarithmic mapping)
         signal_strength = int(network.get('Signal', '0%').rstrip('%'))
-        signal_score = 40 * (math.log10(signal_strength) / 2)
+        # Logarithmic mapping: The score increases rapidly for lower signal strengths and slowly for higher strengths.
+        signal_score = 45 * (math.log10(signal_strength + 1) / 2)
 
         # SSID Scoring
         common_ssids = ['default', 'linksys', 'netgear', 'xfinity']
@@ -48,14 +56,19 @@ class NetworkScanner:
             networks.append(current_network)
         return networks
     
-    
     def _get_fake_network_data(self):
         fake_networks = []
         for _ in range(10):
             signal = f"{random.randint(20, 100)}%"
-            auth_options = ['WPA3', 'WPA2', 'WPA', 'WEP', 'OPEN']
+            # Adding WPA2-Enterprise and WPA2-Personal alongside other options
+            auth_options = ['WPA3', 'WPA2-Enterprise', 'WPA2-Personal', 'WPA', 'WEP', 'OPEN']
+            ssid = f"Network_{random.randint(1, 100)}"
+            # Introduce some common SSIDs for SSID scoring
+            if random.choice([True, False]):
+                ssid = random.choice(['default', 'linksys', 'netgear', 'xfinity'])
+
             fake_networks.append({
-                'SSID': f"Network_{random.randint(1, 100)}",
+                'SSID': ssid,
                 'BSSID': ':'.join('%02x' % random.randint(0, 255) for _ in range(6)),
                 'Signal': signal,
                 'Authentication': random.choice(auth_options)
