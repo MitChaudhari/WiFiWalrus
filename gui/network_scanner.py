@@ -14,14 +14,14 @@ class NetworkScanner:
         security = network.get('Authentication', '').upper()
         security_score = security_scores.get(security, 0)
 
-        # Signal Strength Scoring (Logarithmic mapping)
+        # Signal Strength Scoring (Refined logarithmic mapping)
         signal_strength = int(network.get('Signal', '0%').rstrip('%'))
-        # Logarithmic mapping: The score increases rapidly for lower signal strengths and slowly for higher strengths.
-        signal_score = 45 * (math.log10(signal_strength + 1) / 2)
+        # Adjust the logarithmic mapping so the score doesn't reach 50 unless it's 100% signal
+        signal_score = 50 * (math.log10(signal_strength + 1) / math.log10(101))
 
         # SSID Scoring
         common_ssids = ['default', 'linksys', 'netgear', 'xfinity']
-        ssid_score = 10 if any(common_name in network['SSID'].lower() for common_name in common_ssids) else 20
+        ssid_score = 5 if any(common_name in network['SSID'].lower() for common_name in common_ssids) else 10
 
         # Total Score Calculation
         total_score = min(security_score + signal_score + ssid_score, 100)
