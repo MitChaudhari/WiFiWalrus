@@ -101,7 +101,7 @@ class Ui_MainWindow:
         self.tableWidget.setStyleSheet(table_widget_style)
         self.tableWidget.setRowCount(10)  # Set the number of rows to 10
 
-        # Assuming each row is 30 pixels high, including the header, set a fixed height
+        # Each row is 30 pixels high, including the header, set a fixed height
         row_height = 30
         header_height = 30
         total_height = (row_height * 10) + header_height

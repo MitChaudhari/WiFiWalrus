@@ -150,7 +150,7 @@ class HomePage(QWidget):
         right_content_layout.addWidget(gif_label)
 
         right_content_layout.addStretch(1)
-        content_layout.addLayout(right_content_layout, 1)  # Adjust the stretch factor as needed
+        content_layout.addLayout(right_content_layout, 1)  # Adjust the stretch factor if needed
 
         main_layout.addLayout(content_layout)
         self.setLayout(main_layout)

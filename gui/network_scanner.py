@@ -6,7 +6,7 @@ class NetworkScanner:
         security_scores = {
             'WPA3-ENTERPRISE': 50,
             'WPA3-PERSONAL': 45,
-            'WPA3': 40,  # Generic WPA3, if specific type isn't mentioned
+            'WPA3': 40, 
             'WPA2-ENTERPRISE': 35,
             'WPA2-PERSONAL': 30,
             'WPA2': 25,
@@ -84,17 +84,13 @@ class NetworkScanner:
     def _get_fake_network_data(self):
         fake_networks = []
         for _ in range(10):
-            # Randomly decide whether to use a common SSID or a unique one
+            # Decide whether to use a common SSID or a unique one
             use_common_ssid = random.choice([True, False])
             common_ssids = ['default', 'linksys', 'netgear', 'xfinity']
             ssid = random.choice(common_ssids) if use_common_ssid else f"Network_{random.randint(1, 100)}"
 
-            # Randomly leave out SSID
-            include_ssid = random.choice([True, False])
-            ssid = ssid if include_ssid else ""
-
             signal = f"{random.randint(20, 100)}%"
-            auth_options = ['WPA3', 'WPA2-Enterprise', 'WPA2-Personal', 'WPA', 'WEP', 'OPEN']
+            auth_options = ['WPA3-ENTERPRISE', 'WPA3-PERSONAL', 'WPA3', 'WPA2-Enterprise', 'WPA2-Personal', 'WPA2', 'WPA', 'WEP', 'OPEN']
             authentication = random.choice(auth_options)
 
             fake_networks.append({
@@ -105,15 +101,12 @@ class NetworkScanner:
             })
 
         # Generate the fake network data as a string
-        fake_network_data = ""
-        for net in fake_networks:
-            fake_network_data += f"SSID: {net['SSID']}\n" if net['SSID'] else ""
-            fake_network_data += f"BSSID: {net['BSSID']}\n"
-            fake_network_data += f"Signal: {net['Signal']}\n"
-            fake_network_data += f"Authentication: {net['Authentication']}\n"
-            fake_network_data += "\n"
+        fake_network_data = "\n".join([
+            f"SSID: {net['SSID']}\nBSSID: {net['BSSID']}\nSignal: {net['Signal']}\nAuthentication: {net['Authentication']}"
+            for net in fake_networks
+        ])
 
-        return fake_network_data.strip()
+        return fake_network_data
 
     def scan(self):
         networks_raw = ''

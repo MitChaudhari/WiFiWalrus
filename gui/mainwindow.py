@@ -109,7 +109,6 @@ class RecommendedNetworkDialog(QDialog):
         painter.fillRect(self.rect(), QBrush(gradient))
 
         super().paintEvent(event)  # Call the base class paint event
-
 class MainWindow(QMainWindow):
     def __init__(self, navigation_manager):
         super(MainWindow, self).__init__()
@@ -183,7 +182,7 @@ class MainWindow(QMainWindow):
 
     def updateTable(self, networks):
         num_of_networks = len(networks)
-        row_height = 30  # Assuming each row is approximately 30 pixels high
+        row_height = 30  # Each row is approximately 30 pixels high
         header_height = 30  # A header, its height
 
         # Set the number of rows in the table
@@ -208,13 +207,13 @@ class MainWindow(QMainWindow):
         
     def showRecommendation(self, networks):
         if networks:
-            recommended_network = networks[0]  # Assuming the first network is the recommended one
+            recommended_network = networks[0]  # the first network is the recommended one
             self.recommendation_dialog = RecommendedNetworkDialog(recommended_network, self)
             self.recommendation_dialog.exec_()  # Show the dialog
 
 def main():
     app = QApplication(sys.argv)
-    navigation_manager = None  # Initialize or import your navigation manager here
+    navigation_manager = None 
     window = MainWindow(navigation_manager)
     window.show()
     sys.exit(app.exec_())

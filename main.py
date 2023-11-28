@@ -12,7 +12,7 @@ class MainApplicationWindow(QMainWindow):
         self.initUI()
 
     def initUI(self):
-        # Show the initial page (e.g., HomePage)
+        # Show the initial page (HomePage)
         home_page = HomePage(self.navigation_manager)
         self.stacked_widget.addWidget(home_page)
         self.stacked_widget.setCurrentWidget(home_page)
