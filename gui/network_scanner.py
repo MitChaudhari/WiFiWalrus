@@ -4,27 +4,45 @@ class NetworkScanner:
     def _rank_network(self, network):
         # Security Scoring
         security_scores = {
-            'WPA3': 50, 
-            'WPA2-Enterprise': 45, 
-            'WPA2-Personal': 40, 
-            'WPA': 30, 
-            'WEP': 10, 
+            'WPA3-ENTERPRISE': 50,
+            'WPA3-PERSONAL': 45,
+            'WPA3': 40,  # Generic WPA3, if specific type isn't mentioned
+            'WPA2-ENTERPRISE': 35,
+            'WPA2-PERSONAL': 30,
+            'WPA2': 25,
+            'WPA': 20,
+            'WEP': 10,
             'OPEN': 0
         }
-        security = network.get('Authentication', '').upper()
-        security_score = security_scores.get(security, 0)
+        
+        # Parse the security string to check for the presence of -Enterprise or -Personal
+        security = network.get('Authentication', '').upper().replace('-', ' ')
+        security_components = security.split()
+        if 'ENTERPRISE' in security_components:
+            security_key = f'{security_components[0]}-ENTERPRISE'
+        elif 'PERSONAL' in security_components:
+            security_key = f'{security_components[0]}-PERSONAL'
+        else:
+            security_key = security_components[0]  # For 'WEP' or 'OPEN' or generic types
+        
+        security_score = security_scores.get(security_key, security_scores.get(security_components[0], 0))
 
-        # Signal Strength Scoring (Refined logarithmic mapping)
+        # Signal Strength Scoring (Linear mapping)
         signal_strength = int(network.get('Signal', '0%').rstrip('%'))
-        # Adjust the logarithmic mapping so the score doesn't reach 50 unless it's 100% signal
-        signal_score = 50 * (math.log10(signal_strength + 1) / math.log10(101))
+        signal_score = (signal_strength / 100) * 30  # Linear mapping of signal percentage to score
 
         # SSID Scoring
-        common_ssids = ['default', 'linksys', 'netgear', 'xfinity']
-        ssid_score = 5 if any(common_name in network['SSID'].lower() for common_name in common_ssids) else 10
+        common_ssids = [
+            'default', 'linksys', 'netgear', 'xfinity', 'home', 'admin', 'user', 'guest', 
+            '1234', 'public', 'free', 'wifi', 'mywifi', 'wireless'
+        ]
+        ssid_score = 10 if any(common_name in network['SSID'].lower() for common_name in common_ssids) else 20
 
         # Total Score Calculation
-        total_score = min(security_score + signal_score + ssid_score, 100)
+        total_score = security_score + signal_score + ssid_score
+
+        # Ensure the score doesn't exceed 100
+        total_score = min(total_score, 100)
 
         network['Score'] = round(total_score, 2)
         return network
