@@ -1,6 +1,6 @@
 import sys
 import os
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout, QHBoxLayout, QPushButton, QFrame
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout, QHBoxLayout, QPushButton, QFrame,QSizePolicy
 from PyQt5.QtGui import QPixmap, QPainter, QLinearGradient, QColor, QFont, QFontDatabase
 from PyQt5.QtCore import Qt, QPoint
 
@@ -94,21 +94,26 @@ class AboutUs(QWidget):
         about_content_layout = QHBoxLayout()
         about_content_layout.addStretch()  # Add stretch to center the label
         
-
-        font = QFont("Verdana", 20)
-
         # Now we set this font to the QLabel
+        font = QFont("Verdana", 16)
         about_content = QLabel()
         about_content.setFont(font)
         about_content.setTextFormat(Qt.RichText)  # Set text format to Rich Text
         about_content.setText("""
-            <p style='text-align: justify;'>WiFiWalrus sprang to life in the energetic halls of IIT Chicago, crafted by minds steeped in the innovative IPRO 497 course on Cyber Innovation and Tech Entrepreneurship. Our mentor, Prof. Rahul K. Patel, challenged us to turn cyber threats into opportunities for innovation.</p>
-            
-            <p style='text-align: justify;'>We're a team of students who've mixed theory with practice, learning to outsmart digital threats and dreaming up WiFiWalrus along the way. It's our answer to safe and sound internet access – a tool that's as sharp and watchful as the marine giant it's named after.</p>
-            
-            <p style='text-align: justify;'>We learned the ropes of cyber risks, fleshed out business models, and transformed classroom concepts into this practical, user-friendly app. WiFiWalrus is more than just code; it's the fruit of hard work, creativity, and a shared dream to make the digital world a safer place for everyone.</p>
-            
-            <p style='text-align: justify;'>Join us as we navigate the currents of cyberspace with WiFiWalrus. Let's connect safely and sail the cyber seas with confidence!</p>
+            <p><strong>Where It All Began</strong><br>
+            In an era where digital connectivity is as essential as the air we breathe, Wi-Fi Walrus emerged as a beacon of secure connection. Our goal was simple: help people find safe Wi-Fi networks easily.</p>
+
+            <p><strong>What We've Made</strong><br>
+            Our little creation scans for Wi-Fi networks and gives you the info you need to pick a safe one. It's like having a smart friend who knows a bit about online safety.</p>
+
+            <p><strong>Who We Are</strong><br>
+            We're a bunch of students from different areas—some of us code, some design, and others write up all the info. We all pitched in to build Wi-Fi Walrus.</p>
+
+            <p><strong>Our App's Journey</strong><br>
+            It's still early days for our app. We see it as a starting point, and we're excited about how much better it can get with a little more time and work.</p>
+
+            <p><strong>Be Part of Our Story</strong><br>
+            We'd love for you to try Wi-Fi Walrus and share your thoughts. Your feedback is super valuable, and who knows? Your suggestion might be what makes our project awesome. Here's to safer browsing, together.</p>
         """)
         about_content.setStyleSheet("""
             QLabel {
@@ -118,8 +123,11 @@ class AboutUs(QWidget):
             }
         """)
         about_content.setWordWrap(True)
-        about_content.setMaximumWidth(800)
         about_content.setAlignment(Qt.AlignLeft | Qt.AlignTop)  # Center-align the text within the label
+
+        # Adjust size policy and maximum width to make the label responsive
+        about_content.setSizePolicy(QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred))
+        about_content.setMaximumWidth(700)  # Adjust the maximum width as needed
 
         about_content_layout.addWidget(about_content)
         about_content_layout.addStretch()  # Add stretch to center the label
@@ -135,24 +143,25 @@ class AboutUs(QWidget):
                 color: white;
                 background-color: #ad5389;  /* Button background color */
                 border-radius: 20px;  /* Rounded corners */
-                padding: 25px 50px;  /* Increased padding for more height */
+                padding: 20px 45px;  /* Increased padding for more height */
                 margin-top: 20px;  /* Space above the button */
-                min-width: 200px;  /* Minimum width of the button */
-                max-width: 300px;  /* Maximum width of the button */
             }
             QPushButton:hover {
                 background-color: #ffecd2;  /* Button hover color */
                 color: black;
             }
         """)
-        # Center the button in the layout
+
+        # Adjust size policy and maximum width to make the button responsive
+        lets_get_started_button.setSizePolicy(QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred))
+        lets_get_started_button.setMaximumWidth(300)  # Adjust the maximum width as needed
+
         lets_get_started_button_layout = QHBoxLayout()
         lets_get_started_button_layout.addStretch()
         lets_get_started_button_layout.addWidget(lets_get_started_button)
         lets_get_started_button_layout.addStretch()
 
         content_layout.addLayout(lets_get_started_button_layout)
-
 
         # Adjust this stretch to move content upward
         content_layout.addStretch(1)
