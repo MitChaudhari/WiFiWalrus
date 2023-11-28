@@ -125,9 +125,11 @@ class AboutUs(QWidget):
         about_content.setWordWrap(True)
         about_content.setAlignment(Qt.AlignLeft | Qt.AlignTop)  # Center-align the text within the label
 
-        # Adjust size policy and maximum width to make the label responsive
-        about_content.setSizePolicy(QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred))
+        # Set the size policy to scale with the window
+        size_policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        about_content.setSizePolicy(size_policy)
         about_content.setMaximumWidth(700)  # Adjust the maximum width as needed
+        about_content.setMinimumWidth(400)  # Ensure a minimum width for readability
 
         about_content_layout.addWidget(about_content)
         about_content_layout.addStretch()  # Add stretch to center the label
