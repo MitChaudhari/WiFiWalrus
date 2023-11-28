@@ -27,9 +27,11 @@ class NetworkScanner:
         
         security_score = security_scores.get(security_key, security_scores.get(security_components[0], 0))
 
-        # Signal Strength Scoring (Linear mapping)
+        # Signal Strength Scoring (Logarithmic mapping)
         signal_strength = int(network.get('Signal', '0%').rstrip('%'))
-        signal_score = (signal_strength / 100) * 30  # Linear mapping of signal percentage to score
+        # Logarithmic mapping: The score increases rapidly for lower signal strengths and more slowly for higher strengths.
+        # Adding 1 to avoid log(0) and scaling to fit into the 0-30 range
+        signal_score = 30 * (math.log10(signal_strength + 1) / math.log10(101))
 
         # SSID Scoring
         common_ssids = [
