@@ -203,6 +203,15 @@ class MainWindow(QMainWindow):
             self.ui.tableWidget.setItem(i, 3, QTableWidgetItem(network.get('Authentication', 'N/A')))
             self.ui.tableWidget.setItem(i, 4, QTableWidgetItem(f"{network.get('Score', 0):.2f}"))
             
+        # After populating the table, adjust the width dynamically
+        total_width = self.ui.tableWidget.verticalHeader().width() + 4  # Include the vertical header and frame width
+        for i in range(self.ui.tableWidget.columnCount()):
+            total_width += self.ui.tableWidget.horizontalHeader().sectionSize(i)
+
+        # Set the table width to the calculated total width
+        self.ui.tableWidget.setMinimumWidth(total_width)
+        self.ui.tableWidget.setMaximumWidth(total_width)
+            
         self.ui.centralwidget.layout().update()
         
     def showRecommendation(self, networks):

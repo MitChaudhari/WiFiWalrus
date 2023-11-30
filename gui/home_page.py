@@ -1,8 +1,16 @@
-import sys
+import sys,os
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout, QHBoxLayout, QPushButton, QFrame
 from PyQt5.QtGui import QPixmap, QMovie, QPainter, QLinearGradient, QColor
 from PyQt5.QtCore import Qt, QPoint
 
+# Add the resource_path function to handle asset paths correctly
+def resource_path(relative_path):
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
 
 class HomePage(QWidget):
     def __init__(self, navigation_manager):
@@ -16,15 +24,20 @@ class HomePage(QWidget):
 
         # Start with black
         gradient.setColorAt(0, QColor('black'))
-        # Start blending into dark purple (#010314)
-        gradient.setColorAt(0.75, QColor('#010314'))
-        # Transition into bright purple (#592DD1)
-        gradient.setColorAt(0.90, QColor('#592DD1'))
-        # End with white (#FFFFFF)
-        gradient.setColorAt(1, QColor('#FFFFFF'))
+        # Begin a subtle transition to dark red before the 85% mark
+        gradient.setColorAt(0.80, QColor('black'))
+        gradient.setColorAt(0.82, QColor('#300000'))  # A very dark red, almost black
+        # Gradual transition to dark red
+        gradient.setColorAt(0.85, QColor('#c4131b'))
+        # Progress to bright orange
+        gradient.setColorAt(0.90, QColor('#fd7129'))
+        # End with a lighter orange to simulate the fiery effect
+        gradient.setColorAt(0.95, QColor('#ff9d62'))
+        gradient.setColorAt(1, QColor('#ff9d62'))  # Maintain the light orange till the end
 
         painter.fillRect(self.rect(), gradient)
         painter.end()
+
 
     def initUI(self):
         self.setWindowTitle('WiFiWalrus - Home')
@@ -46,7 +59,8 @@ class HomePage(QWidget):
 
         # Logo
         logo = QLabel(self)
-        logo_pixmap = QPixmap('assets/logo.png').scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        logo_path = resource_path('assets/logo.png')  # Update the path using resource_path
+        logo_pixmap = QPixmap(logo_path).scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation)
         logo.setPixmap(logo_pixmap)
         top_layout.addWidget(logo)
 
@@ -142,7 +156,8 @@ class HomePage(QWidget):
         right_content_layout.addStretch(1)  # Add stretch to align GIF vertically
 
         gif_label = QLabel(self)
-        gif_movie = QMovie('assets/wifiBar.gif')
+        gif_path = resource_path('assets/wifiBar.gif')
+        gif_movie = QMovie(gif_path)
         gif_label.setMovie(gif_movie)
         gif_movie.start()
         gif_label.setAlignment(Qt.AlignCenter)

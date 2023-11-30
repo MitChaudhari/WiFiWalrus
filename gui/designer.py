@@ -1,3 +1,5 @@
+import os
+import sys
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QLabel, QVBoxLayout, QHBoxLayout, QPushButton,
     QTableWidget, QTableWidgetItem, QHeaderView, QMainWindow, QSizePolicy, QSpacerItem
@@ -5,6 +7,14 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtGui import QFont, QColor, QPixmap
 from PyQt5.QtCore import Qt
 
+# Add the resource_path function to handle asset paths correctly
+def resource_path(relative_path):
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
 class Ui_MainWindow:
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -23,7 +33,8 @@ class Ui_MainWindow:
 
         # Logo
         self.logo = QLabel(self.centralwidget)
-        self.logo.setPixmap(QPixmap('assets/logo.png').scaled(100, 100, Qt.KeepAspectRatio))
+        self.logo_path = resource_path('assets/logo.png')
+        self.logo.setPixmap(QPixmap(self.logo_path).scaled(100, 100, Qt.KeepAspectRatio))
         self.headerLayout.addWidget(self.logo)
 
         # App Name
@@ -91,25 +102,22 @@ class Ui_MainWindow:
                 padding: 10px;
             }
             """
-        # Initialize the table widget with fixed dimensions
+
+        # Initialize the table widget without fixed dimensions
         self.tableWidget = QTableWidget(self.centralwidget)
         self.tableWidget.setColumnCount(5)
         self.tableWidget.setHorizontalHeaderLabels(["SSID", "BSSID", "Signal", "Security", "Score"])
-        self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)  # Adjust column sizes automatically
+        # Set resize mode for all columns to resize to their content
+        self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+
         self.tableWidget.verticalHeader().setVisible(False)
         self.tableWidget.setShowGrid(False)
         self.tableWidget.setStyleSheet(table_widget_style)
         self.tableWidget.setRowCount(10)  # Set the number of rows to 10
 
-        # Each row is 30 pixels high, including the header, set a fixed height
-        row_height = 30
-        header_height = 30
-        total_height = (row_height * 10) + header_height
-        self.tableWidget.setFixedSize(600, total_height)  # Width is 600, height is calculated
-
         # Place the table within a layout to center it in the available space
         tableLayout = QVBoxLayout()
-        tableLayout.addStretch(10)  # Add stretch to center the table vertically
+        tableLayout.addStretch()  # Add stretch to center the table vertically
         tableLayout.addWidget(self.tableWidget, 0, Qt.AlignCenter)  # Center horizontally and vertically
         tableLayout.addStretch()  # Add stretch to center the table vertically
         self.mainLayout.addLayout(tableLayout)

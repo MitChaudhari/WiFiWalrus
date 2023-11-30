@@ -4,6 +4,14 @@ from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout, QHBoxLay
 from PyQt5.QtGui import QPixmap, QPainter, QLinearGradient, QColor, QFont, QFontDatabase
 from PyQt5.QtCore import Qt, QPoint
 
+# Add the resource_path function to handle asset paths correctly
+def resource_path(relative_path):
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
 class AboutUs(QWidget):
     def __init__(self, navigation_manager):
         super().__init__()
@@ -34,7 +42,8 @@ class AboutUs(QWidget):
 
         # Logo
         logo = QLabel(self)
-        logo_pixmap = QPixmap('assets/logo.png').scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        logo_path = resource_path('assets/logo.png')  # Update the path using resource_path
+        logo_pixmap = QPixmap(logo_path).scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation)
         logo.setPixmap(logo_pixmap)
         top_layout.addWidget(logo)
 
