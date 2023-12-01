@@ -1,11 +1,10 @@
-import sys, random,math
+import sys,math
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QWidget, QDialog, QVBoxLayout, QLabel, QPushButton,QHBoxLayout
 from PyQt5.QtGui import QPainter, QLinearGradient, QColor, QPixmap, QBrush, QRadialGradient
 from PyQt5.QtCore import QThread, pyqtSignal, Qt, QPoint, QTimer, QPointF, QSize
 
 from gui.designer import Ui_MainWindow
 from gui.network_scanner import NetworkScanner
-from gui.database_manager import DatabaseManager
 class ScannerWorker(QThread):
     finished = pyqtSignal(list)  # Signal to emit the scanned networks
     def run(self):
@@ -113,7 +112,6 @@ class MainWindow(QMainWindow):
         self.navigation_manager = navigation_manager
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        self.db_manager = DatabaseManager()  # Initialize DatabaseManager
         self.setupSignals()
 
         self.scanner_thread = ScannerWorker()  # Initialize the scanner thread
@@ -173,7 +171,6 @@ class MainWindow(QMainWindow):
 
     def onScanComplete(self, networks):
         self.updateTable(networks)
-        db_status = self.db_manager.send_to_api(networks)
         self.ui.scanButton.setText("Scan")  # Reset the button text back to "Scan"
         self.ui.scanButton.setEnabled(True)  # Re-enable the button
         self.showRecommendation(networks)  # Show the recommendation dialog

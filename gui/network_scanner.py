@@ -130,3 +130,4 @@ class NetworkScanner:
         # Return only the top 10 networks
         top_networks = ranked_networks[:10]
         return top_networks
+    

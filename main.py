@@ -26,5 +26,3 @@ def main():
 if __name__ == "__main__":
     main()
     
-    
-    # pyinstaller --windowed --onefile --noconfirm --add-data "C:\path\to\your\assets\logo.png;assets" --add-data "C:\path\to\your\assets\wifiBar.gif;assets" --icon "C:\path\to\your\icon\app_icon.ico" main.py
