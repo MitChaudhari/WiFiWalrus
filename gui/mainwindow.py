@@ -1,6 +1,4 @@
-import sys
-import random
-import math
+import sys, random,math
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QWidget, QDialog, QVBoxLayout, QLabel, QPushButton,QHBoxLayout
 from PyQt5.QtGui import QPainter, QLinearGradient, QColor, QPixmap, QBrush, QRadialGradient
 from PyQt5.QtCore import QThread, pyqtSignal, Qt, QPoint, QTimer, QPointF, QSize
