@@ -84,6 +84,7 @@ Your input and suggestions are greatly appreciated and will help in further impr
 
 WiFiWalrus is licensed under the MIT License. This license permits you to use, modify, and distribute the software freely, provided that the original copyright and permission notice are included with any substantial portions of the software.
 
-For the full license text, see the [LICENSE](https://github.com/IPRO497/WiFiWalrus/LICENSE.md) file in the GitHub repository.
+For the full license text, see the [LICENSE](https://github.com/IPRO497/WiFiWalrus/blob/main/LICENSE.md) file in the GitHub repository.
+
 
 
