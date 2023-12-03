@@ -9,6 +9,16 @@ WiFiWalrus is an intuitive Wi-Fi network analysis application designed to identi
 - **Network Ranking**: Analyzes networks based on security, signal strength, and SSID.
 - **User-Friendly Interface**: Built using PyQt5 for smooth navigation and interaction.
 
+## Application Screenshots
+
+Take a look at some of the key features of WiFiWalrus in action:
+
+### Main Interface
+![WiFiWalrus Main Interface](https://github.com/IPRO497/WiFiWalrus/raw/main/assets/home_pageSS.png "Main Interface of WiFiWalrus")
+
+### Network Ranking
+![WiFiWalrus Network Ranking](https://github.com/IPRO497/WiFiWalrus/raw/main/assets/network_scanSS.png "Network Ranking in WiFiWalrus")
+
 ## Getting Started
 
 Follow these instructions to get a copy of the project up and running on your local machine.
