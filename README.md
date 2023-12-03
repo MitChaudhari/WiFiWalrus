@@ -17,7 +17,7 @@ Take a look at some of the key features of WiFiWalrus in action:
 ![WiFiWalrus Main Interface](https://github.com/IPRO497/WiFiWalrus/raw/main/assets/home_pageSS.png "Main Interface of WiFiWalrus")
 
 ### Network Ranking
-![WiFiWalrus Network Ranking](https://github.com/IPRO497/WiFiWalrus/raw/main/assets/network_scanSS.png "Network Ranking in WiFiWalrus")
+![WiFiWalrus Network Ranking](https://github.com/IPRO497/WiFiWalrus/raw/main/assets/network_scannerSS.png "Network Ranking in WiFiWalrus")
 
 ## Getting Started
 
