@@ -33,7 +33,7 @@ Follow these instructions to get a copy of the project up and running on your lo
 Clone the WiFiWalrus repository to your local machine using the following commands:
 
 ```bash
-git clone https://github.com/IPRO497/WiFiWalrus.git
+git clone https://github.com/MitChaudhari/WiFiWalrus.git
 ```
 
 Then open the project folder
